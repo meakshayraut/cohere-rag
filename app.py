@@ -15,7 +15,7 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 # Set page config
 st.set_page_config(page_title="Cohere RAG", layout="wide")
 
-# Custom CSS to improve the UI and move sidebar to the left
+# Custom CSS (unchanged)
 st.markdown("""
 <style>
     .block-container {
@@ -68,8 +68,14 @@ if 'vectorstore' not in st.session_state:
     st.session_state.vectorstore = None
 if 'pdf_processed' not in st.session_state:
     st.session_state.pdf_processed = False
+if 'cohere_llm' not in st.session_state:
+    st.session_state.cohere_llm = None
 
-# Process PDF
+# Initialize Cohere LLM when API key is provided
+if cohere_api_key and st.session_state.cohere_llm is None:
+    st.session_state.cohere_llm = Cohere(model="command", temperature=0.1, cohere_api_key=cohere_api_key)
+
+# Process PDF (unchanged)
 if uploaded_file is not None and cohere_api_key and not st.session_state.pdf_processed:
     with st.spinner("Processing PDF... This may take a moment."):
         # Define Embeddings Model
@@ -101,22 +107,19 @@ if uploaded_file is not None and cohere_api_key and not st.session_state.pdf_pro
 question = st.text_input("What would you like to know about the PDF content?", placeholder="Enter your question here...")
 
 # Generate answer
-if st.session_state.pdf_processed and question:
+if st.session_state.pdf_processed and question and st.session_state.cohere_llm:
     if st.button("Get Answer"):
         with st.spinner("Generating answer..."):
-            # Define LLM
-            cohere_llm = Cohere(model="command", temperature=0.1, cohere_api_key=cohere_api_key)
-
             vectorstore = st.session_state.vectorstore
             retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
             # Define prompt template
-            prompt_template = """You are an expert assistant. Answer the question as accurately and precisely as possible using only the provided context.
+            prompt_template = """You are a helpful AI assistant. Answer the question as accurately and precisely as possible using only the provided context.
                                 If the answer is not contained in the context, respond with "answer not available in context."
                                 Context:{context}
                                 Question:{question}
                                 Answer:"""
-            
+
             prompt = PromptTemplate.from_template(template=prompt_template)
 
             # Format docs function
@@ -127,7 +130,7 @@ if st.session_state.pdf_processed and question:
             rag_chain = (
                 {"context": retriever | format_docs, "question": RunnablePassthrough()}
                 | prompt
-                | cohere_llm
+                | st.session_state.cohere_llm
                 | StrOutputParser()
             )
 
@@ -139,6 +142,8 @@ elif not st.session_state.pdf_processed:
     st.warning("Please upload a PDF file and enter your Cohere API key first.")
 elif st.session_state.pdf_processed and not question:
     st.info("PDF processed. Please enter a question to get an answer.")
+elif st.session_state.pdf_processed and question and not st.session_state.cohere_llm:
+    st.error("Cohere LLM not initialized. Please check your API key.")
 
 # Footer
 st.markdown("---")
