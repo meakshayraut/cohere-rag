@@ -68,6 +68,10 @@ This Streamlit application allows users to upload a PDF and ask questions about 
 1. After running the application, you'll see the interface to enter your Cohere API key and upload a PDF file.
 2. Once the PDF is uploaded, you can type a question in the chat input and receive an answer based on the PDF content.
 
+## Screenshot
+
+![App Screenshot](screenshots/app_screenshot.png)
+
 ## Troubleshooting
 
 - Ensure that you have a valid Cohere API key.
