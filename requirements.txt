@@ -5,4 +5,5 @@ langchain_community
 langchain_text_splitters
 sentence-transformers
 chromadb
-cohere 
+cohere
+pysqlite3-binary
