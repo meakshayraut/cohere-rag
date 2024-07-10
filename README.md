@@ -1,4 +1,6 @@
-# Conversational PDF Question Answering
+# Cohere RAG APP
+
+## Conversational PDF Question Answering
 
 This Streamlit application allows users to upload a PDF and ask questions about its content. The application uses Cohere's LLM, HuggingFace embeddings, and Chroma vectorstore to retrieve relevant information from the PDF and generate answers.
 
