@@ -1,0 +1,8 @@
+python-docx
+PyPDF2
+langchain
+langchain_community
+langchain_text_splitters
+sentence-transformers
+chromadb
+cohere 
